@@ -1,0 +1,26 @@
+FROM openjdk:11.0.5-jre-slim
+
+#jvm env
+ENV XMX=""
+ENV XMS=""
+ENV EXTRA_JAVA_OPS=""
+
+#spring env
+ENV EXTRA_SPRING_ARGS=""
+
+ARG JAR_FILE=*.jar
+ARG GIT_COMMIT_ID
+ARG JENKSIN_BUILD_ID
+
+WORKDIR /opt/
+
+ADD ${JAR_FILE} app.jar
+
+EXPOSE 8080
+
+RUN echo ${GIT_COMMIT_ID} > commit_id
+RUN echo ${JENKSIN_BUILD_ID} > jenkins_build_id
+RUN cat commit_id
+RUN cat jenkins_build_id
+
+ENTRYPOINT echo -e "Commit:\n"$(cat commit_id)"\nJenkins build:\n"$(cat jenkins_build_id) && java ${XMS} ${XMX} ${COMMON_JAVA_OPS} ${EXTRA_JAVA_OPS} -jar app.jar ${COMMON_SPRING_ARGS} ${EXTRA_SPRING_ARGS}
